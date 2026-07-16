@@ -1,3 +1,4 @@
+// Extern. imports
 use fltk::{
     // Basic feature set
     app,
@@ -16,12 +17,12 @@ use fltk::{
     prelude::*,
     enums::*,
 
-    // Text display
-    frame::Frame,
-
     // Images
     image::PngImage,
 };
+
+// Local imports
+mod notification_helper;
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
 const WINDOW_HEIGHT_MINIMUM: i32 = 480;
@@ -38,6 +39,11 @@ struct Job {
     added: u32, //TODO Change to timestamp
     status: bool, //TODO Enum
 }
+
+// Magic number labelling constants
+// button types
+const OK_BUTTON: u8 = 0;
+const CANCEL_RETRY_BUTTON: u8 = 1;
 
 fn main() {
     println!("DEBUG: GUI starting");
@@ -105,13 +111,6 @@ fn main() {
 
     menu.end();
 
-    let mut message_frame = Frame::default()
-	.with_size(200, 75)
-	.center_of(&window);
-    message_frame.set_frame(FrameType::EngravedFrame);
-    message_frame.set_label("Test Message");
-    message_frame.hide();
-
     window.make_resizable(true);
     //TODO make window take previous size and position
 
@@ -154,5 +153,7 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 }
 
 fn show_notification(title: String, body: String, button_set: u8) {
-    message_frame.show();
+    let mut window = notification_helper::NotificationPopup::new(title, body, button_set);
+    window.notification_window.show();
 }
+
