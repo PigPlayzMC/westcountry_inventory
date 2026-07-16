@@ -39,9 +39,15 @@ pub struct NotificationPopup {
 
 impl NotificationPopup {
     pub fn new(title: String, body: String, button_set: u8) -> Self {
-	let mut notification_window: Window = window::Window::default().with_size(320, 200).with_label(&title);
+	let mut notification_window: Window = window::Window::default().with_size(360, 200).with_label(&title);
 	notification_window.set_border(true);
 	notification_window.make_modal(true);
+	// TODO REDO using text display
+	let body_frame = frame::Frame::default()
+	    .with_size(340, 180)
+	    .with_label(&body)
+	    .center_of_parent();
+	
 	notification_window.end();
 
 	Self { notification_window }

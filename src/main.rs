@@ -140,10 +140,9 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 		println!("About screen");
 	    },
 	    "&About/&License\t" => {
-		println!("FREE SOFTWARE");
 		show_notification(
-		    "Free".to_string(),
-		    "Software".to_string(),
+		    "License".to_string(),
+		    "This program is Free Software, licensed under\nthe terms of the GNU General Public License Version 3,\na free, copyleft license. A copy of this license\nshould be distributed with the source code, or\nat https://www.gnu.org/licenses/gpl-3.0.html".to_string(),
 		    0
 		);
 	    },
