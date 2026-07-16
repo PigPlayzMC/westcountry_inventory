@@ -26,6 +26,19 @@ use fltk::{
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
 const WINDOW_HEIGHT_MINIMUM: i32 = 480;
 
+struct State {
+    changes: bool,
+}
+
+struct Job {
+    device_name: String,
+    description: String,
+    notes: String,
+    last_modified: u32, //TODO Change to timestamp
+    added: u32, //TODO Change to timestamp
+    status: bool, //TODO Enum
+}
+
 fn main() {
     println!("DEBUG: GUI starting");
 
@@ -129,8 +142,17 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 	    },
 	    "&About/&License\t" => {
 		println!("FREE SOFTWARE");
+		show_notification(
+		    "Free".to_string(),
+		    "Software".to_string(),
+		    0
+		);
 	    },
 	    _ => unreachable!(),
 	};
     };
+}
+
+fn show_notification(title: String, body: String, button_set: u8) {
+    message_frame.show();
 }
