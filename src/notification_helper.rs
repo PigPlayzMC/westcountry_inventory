@@ -43,10 +43,15 @@ impl NotificationPopup {
 	notification_window.set_border(true);
 	notification_window.make_modal(true);
 	// TODO REDO using text display
-	let body_frame = frame::Frame::default()
+	let mut body_text = text::TextDisplay::default()
 	    .with_size(340, 180)
-	    .with_label(&body)
 	    .center_of_parent();
+
+	let mut body_buffer = text::TextBuffer::default();
+	body_buffer.set_text(&body);
+	
+	body_text.set_buffer(body_buffer);
+	body_text.wrap_mode(text::WrapMode::AtBounds, 0);
 	
 	notification_window.end();
 

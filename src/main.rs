@@ -142,7 +142,7 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 	    "&About/&License\t" => {
 		show_notification(
 		    "License".to_string(),
-		    "This program is Free Software, licensed under\nthe terms of the GNU General Public License Version 3,\na free, copyleft license. A copy of this license\nshould be distributed with the source code, or\nat https://www.gnu.org/licenses/gpl-3.0.html".to_string(),
+		    "This program is Free Software, licensed under the terms of the GNU General Public License Version 3, a free, copyleft license. A copy of this license should be distributed with the source code, or found at https://www.gnu.org/licenses/gpl-3.0.html".to_string(),
 		    0
 		);
 	    },
