@@ -23,6 +23,7 @@ use fltk::{
 
 // Local imports
 mod notification_helper;
+mod button_consts;
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
 const WINDOW_HEIGHT_MINIMUM: i32 = 480;
@@ -39,11 +40,6 @@ struct Job {
     added: u32, //TODO Change to timestamp
     status: bool, //TODO Enum
 }
-
-// Magic number labelling constants
-// button types
-const OK_BUTTON: u8 = 0;
-const CANCEL_RETRY_BUTTON: u8 = 1;
 
 fn main() {
     println!("DEBUG: GUI starting");
@@ -143,7 +139,7 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 		show_notification(
 		    "License".to_string(),
 		    "This program is Free Software, licensed under the terms of the GNU General Public License Version 3, a free, copyleft license. A copy of this license should be distributed with the source code, or found at https://www.gnu.org/licenses/gpl-3.0.html".to_string(),
-		    0
+		    button_consts::OK_BUTTON,
 		);
 	    },
 	    _ => unreachable!(),

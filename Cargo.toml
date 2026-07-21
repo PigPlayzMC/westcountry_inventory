@@ -6,3 +6,10 @@ edition = "2024"
 [dependencies]
 fltk = { version = "1.5.23", features = ["use-wayland"] }
 tokio = "1.52.3"
+
+[profile.release]
+strip = true
+lto = "fat"
+panic = "abort"
+codegen-units = 1
+opt-level = 3
