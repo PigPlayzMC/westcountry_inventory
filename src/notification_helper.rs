@@ -1,16 +1,14 @@
 use fltk::{
-    button::Button, prelude::*, window::{DoubleWindow, Window}, *
+    button,
+	prelude::*,
+	window,
+	text,
 };
 
-use crate::{button_consts, notification_helper};
+use crate::{button_consts};
 
 pub struct NotificationPopup {
     pub notification_window: window::Window,
-}
-
-// Destruction of window trait, for popup window
-trait Destroy {
-	fn destroy(self);
 }
 
 const WIDTH: i32 = 400;
@@ -23,7 +21,7 @@ const SPACING: i32 = 10; // Controls how far elements are bounded inside the win
 
 impl NotificationPopup {
     pub fn new(title: String, body: String, button_set: u8) -> Self {
-	let mut notification_window: Window = window::Window::default().with_size(WIDTH, HEIGHT).with_label(&title);
+	let mut notification_window: window::Window = window::Window::default().with_size(WIDTH, HEIGHT).with_label(&title);
 	notification_window.set_border(true);
 	notification_window.make_modal(true);
 
@@ -39,7 +37,7 @@ impl NotificationPopup {
 
 	match button_set {
 		button_consts::OK_BUTTON => {
-			let mut ok_button: Button = button::Button::default()
+			let mut ok_button: button::Button = button::Button::default()
 				.with_size(BUTTON_WIDTH, BUTTON_HEIGHT)
 				.with_label("Ok")
 				.with_pos(WIDTH - BUTTON_WIDTH - SPACING, HEIGHT - BUTTON_HEIGHT - SPACING);
