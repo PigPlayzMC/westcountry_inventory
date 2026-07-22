@@ -63,7 +63,7 @@ fn main() {
     window.set_icon(Some(icon));
 
     // Menu
-    let mut menu = menu::SysMenuBar::default().with_size(800, 35);
+    let mut menu: menu::SysMenuBar = menu::SysMenuBar::default().with_size(800, 35);
 
     // Job specific actions
     menu.add(
@@ -133,12 +133,16 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 	    },
 	    
 	    "&About/&About\t" => {
-		println!("About screen");
+        show_notification(
+            "About this program", 
+            "This program is a Free job management platform for IT technicians.", 
+            button_consts::OK_BUTTON,
+        );
 	    },
 	    "&About/&License\t" => {
 		show_notification(
-		    "License".to_string(),
-		    "This program is Free Software, licensed under the terms of the GNU General Public License Version 3, a free, copyleft license. A copy of this license should be distributed with the source code, or found at https://www.gnu.org/licenses/gpl-3.0.html".to_string(),
+		    "License",
+		    "This program is Free Software, licensed under the terms of the GNU General Public License Version 3, a free, copyleft license. A copy of this license should be distributed with the source code, or found at https://www.gnu.org/licenses/gpl-3.0.html",
 		    button_consts::OK_BUTTON,
 		);
 	    },
@@ -147,8 +151,8 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
     };
 }
 
-fn show_notification(title: String, body: String, button_set: u8) {
-    let mut window = notification_helper::NotificationPopup::new(title, body, button_set);
+fn show_notification(title: &str, body: &str, button_set: u8) {
+    let mut window = notification_helper::NotificationPopup::new(title.to_string(), body.to_string(), button_set);
     window.notification_window.show();
 }
 

@@ -1,4 +1,4 @@
-#[allow(unused_assignments)]
+#![allow(dead_code, /* Some constants are reserved for future functionality */)]
 
 // Magic number labelling constants
 // button types
