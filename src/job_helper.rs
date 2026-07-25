@@ -1,11 +1,16 @@
 use std::fmt::{
-	self
+	self,
 };
 
 use fltk::{
-	button, group, prelude::{
-		DisplayExt, GroupExt, WidgetBase, WidgetExt,
-	}, text,
+	button,
+	group,
+	prelude::{
+		DisplayExt,
+		GroupExt,
+		WidgetExt,
+	},
+	text,
 };
 
 pub struct Job {
@@ -37,8 +42,9 @@ pub trait Widget {
 impl Widget for Job {
 	fn make_widget(&self) -> group::Flex {
 		let mut widget: group::Flex = group::Flex::default().with_size(100, 100).column();
+		widget.set_spacing(0);
 
-		let mut visit_button: button::Button = button::Button::default().with_label(&self.device_name);
+		let visit_button: button::Button = button::Button::default().with_label(&self.device_name);
 
 		widget.fixed(&visit_button, 25);
 

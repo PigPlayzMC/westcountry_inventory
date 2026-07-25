@@ -5,7 +5,7 @@ use fltk::{
 		App
 	},
 	enums::*, 
-	group::{Grid, Flex},
+	group::Grid,
 	image::PngImage, 
 	menu, 
 	prelude::*, 
@@ -30,6 +30,8 @@ use job_helper::{
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
 const WINDOW_HEIGHT_MINIMUM: i32 = 480;
+
+const MENU_HEIGHT: i32 = 35;
 
 struct State {
 	changes: bool,
@@ -57,7 +59,7 @@ fn main() {
 	window.set_icon(Some(icon));
 
 	// Menu
-	let mut menu: menu::SysMenuBar = menu::SysMenuBar::default().with_size(800, 35);
+	let mut menu: menu::SysMenuBar = menu::SysMenuBar::default().with_size(800, MENU_HEIGHT);
 
 	// Job specific actions
 	menu.add(
@@ -111,9 +113,16 @@ fn main() {
 		false
 	);
 
-	let mut job_grid: Grid = Grid::new(35, 35, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
+	let mut job_grid: Grid = Grid::new(0, MENU_HEIGHT, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
+	job_grid.set_layout(5, 5);
+	job_grid.set_margin(0, 0, 0, 0);
 
-	job_grid.add(&Job::make_widget(&example_job));
+	let _ = job_grid.set_widget(&mut Job::make_widget(&example_job), 0, 0);
+	
+	/* Debug settings for alignment
+	job_grid.debug(1);
+	job_grid.show_grid(true);
+	*/
 
 	window.make_resizable(true);
 	//TODO make window take previous size and position
