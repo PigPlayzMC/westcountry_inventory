@@ -119,15 +119,26 @@ fn main() {
 
 	let _ = job_grid.set_widget(&mut Job::make_widget(&example_job), 0, 0);
 	
-	/* Debug settings for alignment
-	job_grid.debug(1);
+	/* Debug settings for alignment */
+	////job_grid.debug(1);
 	job_grid.show_grid(true);
-	*/
 
 	window.make_resizable(true);
 	//TODO make window take previous size and position
 
 	window.end(); // Close the window parenting scope
+
+	window.resize_callback(move |_window: &mut DoubleWindow, _x: i32, _y: i32, width: i32, height: i32| {
+		// Ensure size formatting remains constant despite window resizing
+		menu.resize(0, 0, width, MENU_HEIGHT);
+
+		job_grid.set_pos(0, MENU_HEIGHT);
+		job_grid.set_size(width, height);
+
+		let layout: [i32; 2] = get_grid_dimensions(width, height);
+		job_grid.set_layout(layout[0], layout[1]);
+	});
+
 	window.show();
 
 	gui_control.run().unwrap();
@@ -173,3 +184,7 @@ fn show_notification(title: &str, body: &str, button_set: u8) {
 	window.notification_window.show();
 }
 
+fn get_grid_dimensions(window_width: i32, window_height: i32) -> [i32; 2] {
+	// Works out how many job widgets can be added to the job grid, at size 100x100 pixels
+	return [ (window_width as f32 / 100.0).floor() as i32, ((window_height - MENU_HEIGHT) as f32 / 100.0).floor() as i32 ]
+}
