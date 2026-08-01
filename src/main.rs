@@ -114,10 +114,28 @@ fn main() {
 	);
 
 	let mut job_grid: Grid = Grid::new(0, MENU_HEIGHT, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
-	job_grid.set_layout(5, 5);
+	let layout: [i32; 2] = get_grid_dimensions(window.width(), window.width());
+	job_grid.set_layout(layout[1], layout[0]);
 	job_grid.set_margin(0, 0, 0, 0);
 
-	let _ = job_grid.set_widget(&mut Job::make_widget(&example_job), 0, 0);
+	let job: &mut fltk::group::Flex = &mut Job::make_widget(&example_job);
+	
+	// Click handling
+	job.handle(move |_widget: &mut fltk::group::Flex, ev: Event| {
+		match ev {
+			Event::Push => {
+				println!("Clicked!");
+
+				// Handled results must return true
+				true
+			},
+			_ => false, // Unhandled results must return false
+		}
+	});
+
+	println!("{:?}", job.trigger());
+
+	let _ = job_grid.set_widget(job, 0, 0);
 	
 	/* Debug settings for alignment */
 	////job_grid.debug(1);
@@ -136,7 +154,7 @@ fn main() {
 		job_grid.set_size(width, height);
 
 		let layout: [i32; 2] = get_grid_dimensions(width, height);
-		job_grid.set_layout(layout[0], layout[1]);
+		job_grid.set_layout(layout[1], layout[0]);
 	});
 
 	window.show();

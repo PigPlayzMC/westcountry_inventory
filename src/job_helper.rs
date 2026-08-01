@@ -3,14 +3,11 @@ use std::fmt::{
 };
 
 use fltk::{
-	button,
-	group,
-	prelude::{
+	button::{self, Button}, group, prelude::{
 		DisplayExt,
 		GroupExt,
 		WidgetExt,
-	},
-	text,
+	}, text,
 };
 
 pub struct Job {
@@ -44,7 +41,7 @@ impl Widget for Job {
 		let mut widget: group::Flex = group::Flex::default().with_size(100, 100).column();
 		widget.set_spacing(0);
 
-		let visit_button: button::Button = button::Button::default().with_label(&self.device_name);
+		let visit_button: Button = button::Button::default().with_label(&self.device_name);
 
 		widget.fixed(&visit_button, 25);
 
