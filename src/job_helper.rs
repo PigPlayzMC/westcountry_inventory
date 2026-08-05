@@ -3,12 +3,12 @@ use std::fmt::{
 };
 
 use fltk::{
-	button::{self, Button}, group, prelude::{
-		DisplayExt,
-		GroupExt,
-		WidgetExt,
-	}, text,
+	frame, group, prelude::{
+		DisplayExt, GroupExt, WidgetExt, WindowExt,
+	}, text, window,
 };
+
+// ## Job components
 
 pub struct Job {
 	device_name: String,
@@ -41,9 +41,10 @@ impl Widget for Job {
 		let mut widget: group::Flex = group::Flex::default().with_size(100, 100).column();
 		widget.set_spacing(0);
 
-		let visit_button: Button = button::Button::default().with_label(&self.device_name);
+		let mut visit_frame: frame::Frame = frame::Frame::default().with_label(&self.device_name);
+		visit_frame.set_frame(fltk::enums::FrameType::BorderBox);
 
-		widget.fixed(&visit_button, 25);
+		widget.fixed(&visit_frame, 25);
 
 		let mut desciption_display: text::TextDisplay = text::TextDisplay::default();
 
@@ -71,5 +72,39 @@ impl fmt::Display for Job { // Used for debug while testing
 			self.added,
 			self.status
 		)
+	}
+}
+
+// ## Job view components
+
+pub struct JobView {
+	modified: bool,
+}
+
+pub trait CreateView {
+	fn create_view(job: &Job) -> ();
+}
+
+impl CreateView for JobView {
+	fn create_view(job: &Job) -> () {
+		let mut job_view_window: window::Window = window::Window::default()
+			.with_size(400, 400)
+			.with_label(&job.device_name);
+		job_view_window.make_resizable(true);
+
+		let mut description_buffer: text::TextBuffer = text::TextBuffer::default();
+
+		description_buffer.set_text(&job.description);
+
+		let mut description_editor = text::TextEditor::default()
+			.with_size(400, 400)
+			.with_pos(0, 0);
+
+		description_editor.set_buffer(description_buffer);
+
+		job_view_window.end();
+
+		job_view_window.show();
+		job_view_window.make_current();
 	}
 }

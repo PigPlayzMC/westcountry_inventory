@@ -26,6 +26,8 @@ mod button_consts;
 use job_helper::{
 	Job,
 	Widget,
+	JobView,
+	CreateView
 };
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
@@ -126,6 +128,8 @@ fn main() {
 			Event::Push => {
 				println!("Clicked!");
 
+				JobView::create_view(&example_job);
+
 				// Handled results must return true
 				true
 			},
@@ -133,7 +137,7 @@ fn main() {
 		}
 	});
 
-	println!("{:?}", job.trigger());
+	////println!("{:?}", job.trigger());
 
 	let _ = job_grid.set_widget(job, 0, 0);
 	
