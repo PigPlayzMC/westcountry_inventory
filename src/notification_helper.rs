@@ -43,7 +43,7 @@ impl NotificationPopup {
 					.with_pos(WIDTH - BUTTON_WIDTH - SPACING, HEIGHT - BUTTON_HEIGHT - SPACING);
 
 				ok_button.set_callback({
-					let mut notification_window = notification_window.clone();
+					let mut notification_window: window::DoubleWindow = notification_window.clone();
 					
 					move |_| {
 						notification_window.hide();

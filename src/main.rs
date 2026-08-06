@@ -25,6 +25,7 @@ mod button_consts;
 
 use job_helper::{
 	Job,
+	Default,
 	Widget,
 	JobView,
 	CreateView
@@ -34,6 +35,9 @@ const WINDOW_WIDTH_MINIMUM: i32 = 600;
 const WINDOW_HEIGHT_MINIMUM: i32 = 480;
 
 const MENU_HEIGHT: i32 = 35;
+
+const JOB_ROWS_MAX: i32 = 5;
+const JOB_COLUMNS_MAX: i32 = 7;
 
 struct State {
 	changes: bool,
@@ -139,11 +143,14 @@ fn main() {
 
 	////println!("{:?}", job.trigger());
 
+	// Creates an array to store displayed jobs in, and fills the array with default jobs (default jobs must not be displayed)
+	let mut jobs_array: [Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize] = core::array::from_fn(|_| Job::default());
+
 	let _ = job_grid.set_widget(job, 0, 0);
 	
 	/* Debug settings for alignment */
 	////job_grid.debug(1);
-	job_grid.show_grid(true);
+	////job_grid.show_grid(true);
 
 	window.make_resizable(true);
 	//TODO make window take previous size and position
@@ -158,7 +165,7 @@ fn main() {
 		job_grid.set_size(width, height);
 
 		let layout: [i32; 2] = get_grid_dimensions(width, height);
-		job_grid.set_layout(layout[1], layout[0]);
+		job_grid.set_layout(layout[0], layout[1]);
 	});
 
 	window.show();
@@ -208,5 +215,15 @@ fn show_notification(title: &str, body: &str, button_set: u8) {
 
 fn get_grid_dimensions(window_width: i32, window_height: i32) -> [i32; 2] {
 	// Works out how many job widgets can be added to the job grid, at size 100x100 pixels
-	return [ (window_width as f32 / 100.0).floor() as i32, ((window_height - MENU_HEIGHT) as f32 / 100.0).floor() as i32 ]
+	let mut rows: i32 = ((window_height - MENU_HEIGHT) as f32 / 100.0).floor() as i32;
+	let mut columns: i32 = (window_width as f32 / 100.0).floor() as i32;
+	
+	if rows > JOB_ROWS_MAX {
+		rows = JOB_ROWS_MAX;
+	};
+	if columns > JOB_COLUMNS_MAX {
+		columns = JOB_COLUMNS_MAX;
+	};
+
+	return [ rows, columns ]
 }

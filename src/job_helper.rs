@@ -3,8 +3,11 @@ use std::fmt::{
 };
 
 use fltk::{
-	frame, group, prelude::{
-		DisplayExt, GroupExt, WidgetExt, WindowExt,
+	button, enums, frame, group, prelude::{
+		DisplayExt,
+		GroupExt,
+		WidgetExt,
+		WindowExt,
 	}, text, window,
 };
 
@@ -28,6 +31,23 @@ impl Job {
 			added: added,
 			last_modified: last_modified,
 			status: status,
+		};
+	}
+}
+
+pub trait Default {
+	fn default() -> Job;
+}
+
+impl Default for Job {
+	fn default() -> Job {
+		return Job {
+			device_name: "DEFAULT".to_string(),
+			description: "THIS JOB SHOULD NOT APPEAR".to_string(),
+			notes: "".to_string(),
+			added: 0,
+			last_modified: 0,
+			status: false,
 		};
 	}
 }
@@ -97,10 +117,42 @@ impl CreateView for JobView {
 		description_buffer.set_text(&job.description);
 
 		let mut description_editor = text::TextEditor::default()
-			.with_size(400, 400)
+			.with_size(400, 350)
 			.with_pos(0, 0);
 
 		description_editor.set_buffer(description_buffer);
+		description_editor.set_cursor_style(text::Cursor::Block);
+		description_editor.wrap_mode(text::WrapMode::AtBounds, 0);
+
+		let mut discard_button: button::Button = button::Button::default()
+			.with_label("Discard")
+			.with_pos(0, 350)
+			.with_size(100, 50);
+
+		discard_button.set_label_color(enums::Color::Red);
+
+		discard_button.set_callback( {
+			let mut job_view_window: window::Window = job_view_window.clone();
+
+			move |_| {
+				job_view_window.hide();
+			}
+		});
+
+		let mut save_button: button::Button = button::Button::default()
+			.with_label("Save and exit")
+			.with_pos(300, 350)
+			.with_size(100, 50);
+
+		save_button.set_callback({
+			// TODO Saving code
+
+			let mut job_view_window: window::Window = job_view_window.clone();
+
+			move |_| {
+				job_view_window.hide();
+			}
+		});
 
 		job_view_window.end();
 
