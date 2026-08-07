@@ -1,14 +1,25 @@
-use std::fmt::{
-	self,
+use std::{
+	fmt,
+	sync::mpsc::Sender
 };
 
 use fltk::{
-	button, enums, frame, group, prelude::{
+	button,
+	enums,
+	frame,
+	group,
+	text,
+	prelude::{
 		DisplayExt,
 		GroupExt,
+		WidgetBase,
 		WidgetExt,
 		WindowExt,
-	}, text, window,
+	},
+	window::{
+		self,
+		Window
+	},
 };
 
 // ## Job components
@@ -32,6 +43,19 @@ impl Job {
 			last_modified: last_modified,
 			status: status,
 		};
+	}
+}
+
+impl Clone for Job {
+	fn clone(&self) -> Job {
+		return Job {
+			device_name: self.device_name.clone(),
+			description: self.description.clone(),
+			notes: self.notes.clone(),
+			added: self.added,
+			last_modified: self.last_modified,
+			status: self.status,
+		}
 	}
 }
 
@@ -102,11 +126,11 @@ pub struct JobView {
 }
 
 pub trait CreateView {
-	fn create_view(job: &Job) -> ();
+	fn create_view(job: &Job, index: i32, sender: Sender<Job>) -> Window;
 }
 
-impl CreateView for JobView {
-	fn create_view(job: &Job) -> () {
+impl CreateView for JobView { // TODO MAKE RETURN VALUE
+	fn create_view(job: &Job, index: i32, sender: Sender<Job>) -> Window {
 		let mut job_view_window: window::Window = window::Window::default()
 			.with_size(400, 400)
 			.with_label(&job.device_name);
@@ -135,6 +159,10 @@ impl CreateView for JobView {
 			let mut job_view_window: window::Window = job_view_window.clone();
 
 			move |_| {
+				////println!("Discard button");
+
+				////sender.try_send(job);
+
 				job_view_window.hide();
 			}
 		});
@@ -145,18 +173,45 @@ impl CreateView for JobView {
 			.with_size(100, 50);
 
 		save_button.set_callback({
-			// TODO Saving code
+			////println!("{}", modified_job);
+			////println!("{}", &description_editor.buffer().expect("Editor should have an associated buffer").text());
 
 			let mut job_view_window: window::Window = job_view_window.clone();
+			let job: Job = job.clone();
 
 			move |_| {
+				////println!("Save and exit button");
+				// TODO Saving code
+				let modified_job: Job = Job::new(
+					&job.device_name, 
+					&description_editor.buffer().expect("Editor should have an associated buffer").text(),
+					&job.notes, 
+					job.last_modified, 
+					job.added, 
+					job.status
+				);
+
+				////println!("{}", modified_job);
+				////println!("{}", &description_editor.buffer().expect("Editor should have an associated buffer").text());
+
+				match sender.send(modified_job) {
+					Ok(_) => {
+						// This is fine, the data will be recieved on the main thread. NOTE: This does not mean the data has already been recieved.
+					},
+					Err(e) => {
+						eprintln!("Error: Job view reciever unavaliable ({})", e);
+					},
+				};
+
 				job_view_window.hide();
 			}
 		});
 
 		job_view_window.end();
 
+		job_view_window.make_modal(true);
 		job_view_window.show();
-		job_view_window.make_current();
+
+		return job_view_window
 	}
 }

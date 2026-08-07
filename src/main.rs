@@ -1,19 +1,25 @@
 // Extern. imports
 use fltk::{
 	app::{
-		self, 
-		App
+		self,
+		App,
+		redraw,
 	},
-	enums::*, 
-	group::Grid,
-	image::PngImage, 
-	menu, 
-	prelude::*, 
 	window::{
 		DoubleWindow,
 		Window,
 	},
+	enums::*,
+	group::Grid,
+	image::PngImage,
+	menu,
+	prelude::*,
 };
+
+use std::{
+	sync::mpsc,
+	thread,
+}; // Cross thread communication (multiple producer single consumer)
 
 //# Local imports
 // Helpers
@@ -23,12 +29,13 @@ mod job_helper;
 // Constants
 mod button_consts;
 
+//# Local uses
 use job_helper::{
 	Job,
 	Default,
 	Widget,
 	JobView,
-	CreateView
+	CreateView,
 };
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
@@ -119,20 +126,52 @@ fn main() {
 		false
 	);
 
+	// Creates an array to store displayed jobs in, and fills the array with default jobs (default jobs must not be displayed)
+	let mut job_array: [Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize] = core::array::from_fn(|_| Job::default());
 	let mut job_grid: Grid = Grid::new(0, MENU_HEIGHT, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
 	let layout: [i32; 2] = get_grid_dimensions(window.width(), window.width());
 	job_grid.set_layout(layout[1], layout[0]);
 	job_grid.set_margin(0, 0, 0, 0);
 
 	let job: &mut fltk::group::Flex = &mut Job::make_widget(&example_job);
+
+	// Example system TODO Implement fully
+	let row: usize = 0;
+	job_array[row + 0] = example_job;
 	
 	// Click handling
 	job.handle(move |_widget: &mut fltk::group::Flex, ev: Event| {
 		match ev {
 			Event::Push => {
-				println!("Clicked!");
+				let (sender, reciever) = mpsc::channel::<Job>(); // Create communication channel
+				let index: i32 = 0;
 
-				JobView::create_view(&example_job);
+				let mut job_view_window: DoubleWindow = JobView::create_view(&job_array[index as usize], index, sender);
+
+				// Job views are created modally, so blocking our main thread is appropriate
+				job_view_window.handle( move |_window: &mut Window, ev: Event| {
+					match ev {
+						Event::Hide => {
+							////println!("Hide callback, main thread!");
+
+							match reciever.try_recv() {
+								Ok(modified_job) => {
+									println!("{}", modified_job);
+								},
+								Err(mpsc::TryRecvError::Empty) => {
+									// No message recieved, job must have been discarded.
+									println!("Job discarded.");
+								},
+								Err(mpsc::TryRecvError::Disconnected) => {
+									eprintln!("Error: Cross thread job view reciever disconnected");
+								},
+							};
+
+							true
+						},
+						_ => false,
+					}
+				});
 
 				// Handled results must return true
 				true
@@ -142,12 +181,9 @@ fn main() {
 	});
 
 	////println!("{:?}", job.trigger());
-
-	// Creates an array to store displayed jobs in, and fills the array with default jobs (default jobs must not be displayed)
-	let mut jobs_array: [Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize] = core::array::from_fn(|_| Job::default());
-
-	let _ = job_grid.set_widget(job, 0, 0);
 	
+	let _ = job_grid.set_widget(job, 0, 0);
+
 	/* Debug settings for alignment */
 	////job_grid.debug(1);
 	////job_grid.show_grid(true);
