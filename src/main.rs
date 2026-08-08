@@ -1,3 +1,5 @@
+#![deny(clippy::unwrap_used)]
+
 // Extern. imports
 use fltk::{
 	app::{
@@ -72,7 +74,7 @@ fn main() {
 	.with_label("IT Job Management Portal");
 	window.set_xclass("Itjmp");
 
-	let icon: PngImage = PngImage::load("images/icon.png").unwrap();
+	let icon: PngImage = PngImage::load("images/icon.png").expect("Image should exist and be loaded correctly");
 	//TODO Error handling
 	
 	window.set_icon(Some(icon));
@@ -145,7 +147,8 @@ fn main() {
 
 	// Example system TODO Implement fully
 	let row: usize = 0;
-	job_array.lock().unwrap()[row + 0] = example_job;
+	let index: usize = 0;
+	job_array.lock().expect("This thread should not already hold a lock")[row + index] = example_job;
 	
 	// Click handling
 	let job_array_clone_to_handle: Arc<Mutex<[Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize]>> = Arc::clone(&job_array);
@@ -155,7 +158,7 @@ fn main() {
 				let (sender, reciever) = mpsc::channel::<Job>(); // Create communication channel
 				let index: i32 = 0;
 
-				let job_to_view: Job = job_array_clone_to_handle.lock().unwrap()[index as usize].clone();
+				let job_to_view: Job = job_array_clone_to_handle.lock().expect("This thread should not already hold a lock")[index as usize].clone();
 				let mut job_view_window: DoubleWindow = JobView::create_view(&job_to_view, sender);
 
 				let job_array_clone: Arc<Mutex<[Job; 35]>> = Arc::clone(&job_array);
@@ -169,7 +172,7 @@ fn main() {
 									println!("{}", modified_job);
 
 									//job_array[index as usize] = <Job as Clone>::clone(&*&modified_job);
-									job_array_clone.lock().unwrap()[index as usize] = modified_job;
+									job_array_clone.lock().expect("This thread should not already hold a lock")[index as usize] = modified_job;
 
 									state.changes = true;
 								},
@@ -227,7 +230,7 @@ fn main() {
 
 	window.show();
 
-	gui_control.run().unwrap();
+	gui_control.run().expect("App should run correctly");
 }
 
 // Menu buttonpress handling
@@ -282,5 +285,5 @@ fn get_grid_dimensions(window_width: i32, window_height: i32) -> [i32; 2] {
 		columns = JOB_COLUMNS_MAX;
 	};
 
-	return [ rows, columns ]
+	[ rows, columns ]
 }

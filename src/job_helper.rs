@@ -13,7 +13,6 @@ use fltk::{
 		DisplayExt,
 		GroupExt,
 		WidgetExt,
-		WindowExt,
 	},
 	window::{
 		self,
@@ -34,20 +33,20 @@ pub struct Job {
 
 impl Job {
 	pub fn new(device_name: &str, description: &str, notes: &str, last_modified: u32, added: u32, status: bool) -> Job {
-		return Job {
+		Job {
 			device_name: device_name.to_string(),
 			description: description.to_string(),
 			notes: notes.to_string(),
-			added: added,
-			last_modified: last_modified,
-			status: status,
-		};
+			added,
+			last_modified,
+			status,
+		}
 	}
 }
 
 impl Clone for Job {
 	fn clone(&self) -> Job {
-		return Job {
+		Job {
 			device_name: self.device_name.clone(),
 			description: self.description.clone(),
 			notes: self.notes.clone(),
@@ -64,14 +63,14 @@ pub trait Defaults {
 
 impl Defaults for Job {
 	fn default() -> Job {
-		return Job {
+		Job {
 			device_name: "DEFAULT".to_string(),
 			description: "THIS JOB SHOULD NOT APPEAR".to_string(),
 			notes: "".to_string(),
 			added: 0,
 			last_modified: 0,
 			status: false,
-		};
+		}
 	}
 }
 
@@ -208,9 +207,9 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 
 		job_view_window.end();
 
-		job_view_window.make_modal(true);
+		////job_view_window.make_modal(true);
 		job_view_window.show();
 
-		return job_view_window
+		job_view_window
 	}
 }
