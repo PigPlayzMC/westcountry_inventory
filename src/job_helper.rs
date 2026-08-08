@@ -12,7 +12,6 @@ use fltk::{
 	prelude::{
 		DisplayExt,
 		GroupExt,
-		WidgetBase,
 		WidgetExt,
 		WindowExt,
 	},
@@ -59,11 +58,11 @@ impl Clone for Job {
 	}
 }
 
-pub trait Default {
+pub trait Defaults {
 	fn default() -> Job;
 }
 
-impl Default for Job {
+impl Defaults for Job {
 	fn default() -> Job {
 		return Job {
 			device_name: "DEFAULT".to_string(),
@@ -122,15 +121,15 @@ impl fmt::Display for Job { // Used for debug while testing
 // ## Job view components
 
 pub struct JobView {
-	modified: bool,
+	// No components to this struct, purely exists to provide a method
 }
 
 pub trait CreateView {
-	fn create_view(job: &Job, index: i32, sender: Sender<Job>) -> Window;
+	fn create_view(job: &Job, sender: Sender<Job>) -> Window;
 }
 
 impl CreateView for JobView { // TODO MAKE RETURN VALUE
-	fn create_view(job: &Job, index: i32, sender: Sender<Job>) -> Window {
+	fn create_view(job: &Job, sender: Sender<Job>) -> Window {
 		let mut job_view_window: window::Window = window::Window::default()
 			.with_size(400, 400)
 			.with_label(&job.device_name);

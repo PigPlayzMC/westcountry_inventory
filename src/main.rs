@@ -3,7 +3,6 @@ use fltk::{
 	app::{
 		self,
 		App,
-		redraw,
 	},
 	window::{
 		DoubleWindow,
@@ -17,9 +16,12 @@ use fltk::{
 };
 
 use std::{
-	sync::mpsc,
-	thread,
-}; // Cross thread communication (multiple producer single consumer)
+	sync::{
+		mpsc,
+		Mutex,
+		Arc,
+	}, // Cross thread communication (multiple producer single consumer)
+};
 
 //# Local imports
 // Helpers
@@ -32,7 +34,7 @@ mod button_consts;
 //# Local uses
 use job_helper::{
 	Job,
-	Default,
+	Defaults,
 	Widget,
 	JobView,
 	CreateView,
@@ -55,6 +57,10 @@ fn main() {
 
 	// Start async network interface
 	//TODO
+
+	// Initialise state
+	#[allow(unused)]
+	let mut state: State = State { changes: false};
 
 	// Start FLTK app
 	let gui_control: App = App::default().with_scheme(app::Scheme::Gtk);
@@ -127,7 +133,9 @@ fn main() {
 	);
 
 	// Creates an array to store displayed jobs in, and fills the array with default jobs (default jobs must not be displayed)
-	let mut job_array: [Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize] = core::array::from_fn(|_| Job::default());
+	let job_array: Arc<Mutex<[Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize]>> = Arc::new(core::array::from_fn(|_| Job::default()).into());
+	// This creates a thread safe array which can be cloned and updated to avoid issues with borrowing / moving into/out of closures
+	
 	let mut job_grid: Grid = Grid::new(0, MENU_HEIGHT, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
 	let layout: [i32; 2] = get_grid_dimensions(window.width(), window.width());
 	job_grid.set_layout(layout[1], layout[0]);
@@ -137,19 +145,21 @@ fn main() {
 
 	// Example system TODO Implement fully
 	let row: usize = 0;
-	job_array[row + 0] = example_job;
+	job_array.lock().unwrap()[row + 0] = example_job;
 	
 	// Click handling
+	let job_array_clone_to_handle: Arc<Mutex<[Job; (JOB_COLUMNS_MAX*JOB_ROWS_MAX) as usize]>> = Arc::clone(&job_array);
 	job.handle(move |_widget: &mut fltk::group::Flex, ev: Event| {
 		match ev {
 			Event::Push => {
 				let (sender, reciever) = mpsc::channel::<Job>(); // Create communication channel
 				let index: i32 = 0;
 
-				let mut job_view_window: DoubleWindow = JobView::create_view(&job_array[index as usize], index, sender);
+				let job_to_view: Job = job_array_clone_to_handle.lock().unwrap()[index as usize].clone();
+				let mut job_view_window: DoubleWindow = JobView::create_view(&job_to_view, sender);
 
-				// Job views are created modally, so blocking our main thread is appropriate
-				job_view_window.handle( move |_window: &mut Window, ev: Event| {
+				let job_array_clone: Arc<Mutex<[Job; 35]>> = Arc::clone(&job_array);
+				job_view_window.handle(move |_window: &mut Window, ev: Event| {
 					match ev {
 						Event::Hide => {
 							////println!("Hide callback, main thread!");
@@ -157,6 +167,11 @@ fn main() {
 							match reciever.try_recv() {
 								Ok(modified_job) => {
 									println!("{}", modified_job);
+
+									//job_array[index as usize] = <Job as Clone>::clone(&*&modified_job);
+									job_array_clone.lock().unwrap()[index as usize] = modified_job;
+
+									state.changes = true;
 								},
 								Err(mpsc::TryRecvError::Empty) => {
 									// No message recieved, job must have been discarded.
@@ -173,12 +188,18 @@ fn main() {
 					}
 				});
 
+				////println!("{}", job_to_insert);
+
 				// Handled results must return true
 				true
 			},
 			_ => false, // Unhandled results must return false
 		}
 	});
+
+	if state.changes {
+		println!("changes");
+	};
 
 	////println!("{:?}", job.trigger());
 	
