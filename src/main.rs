@@ -3,18 +3,11 @@
 // Extern. imports
 use fltk::{
 	app::{
-		self,
-		App,
-	},
-	window::{
+		self, App, fonts,
+	}, enums::{self, *}, group::Grid, image::PngImage, menu, prelude::*, window::{
 		DoubleWindow,
 		Window,
 	},
-	enums::*,
-	group::Grid,
-	image::PngImage,
-	menu,
-	prelude::*,
 };
 
 use std::{
@@ -68,7 +61,12 @@ fn main() {
 	let gui_control: App = App::default().with_scheme(app::Scheme::Gtk);
 	app::get_system_colors();
 	app::set_selection_color(15, 52, 131);
-	app::set_font(Font::Courier);
+	gui_control.load_system_fonts();
+	////app::set_font(Font::Courier);
+	 
+	////println!("{:?}", fonts());
+	println!("{:?}", app::get_font_names());
+	app::set_font(enums::Font::by_name("Noto Sans")); // If this fails, it falls back to a default Sans font depending on the system
 
 	let mut window: DoubleWindow = Window::default()
 	.with_size(WINDOW_WIDTH_MINIMUM, WINDOW_HEIGHT_MINIMUM)
