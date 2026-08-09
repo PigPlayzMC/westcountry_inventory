@@ -68,6 +68,7 @@ fn main() {
 	let gui_control: App = App::default().with_scheme(app::Scheme::Gtk);
 	app::get_system_colors();
 	app::set_selection_color(15, 52, 131);
+	app::set_font(Font::Courier);
 
 	let mut window: DoubleWindow = Window::default()
 	.with_size(WINDOW_WIDTH_MINIMUM, WINDOW_HEIGHT_MINIMUM)
@@ -130,7 +131,7 @@ fn main() {
 		"description", 
 		"none", 
 		0, 
-		0, 
+		0,
 		false
 	);
 
@@ -139,7 +140,7 @@ fn main() {
 	// This creates a thread safe array which can be cloned and updated to avoid issues with borrowing / moving into/out of closures
 	
 	let mut job_grid: Grid = Grid::new(0, MENU_HEIGHT, WINDOW_HEIGHT_MINIMUM, WINDOW_HEIGHT_MINIMUM, "");
-	let layout: [i32; 2] = get_grid_dimensions(window.width(), window.width());
+	let layout: [i32; 2] = get_grid_dimensions(window.width(), window.height());
 	job_grid.set_layout(layout[1], layout[0]);
 	job_grid.set_margin(0, 0, 0, 0);
 
@@ -243,7 +244,7 @@ fn menu_choice_button(menu: &mut impl MenuExt) {
 			println!("Refresh button clicked");
 			},
 			"&Jobs/&Commit\t" => {
-			println!("Commit");
+			println!("@Commit");
 			},
 			"&Jobs/&Discard\t" => {
 			println!("Discard");
