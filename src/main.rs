@@ -65,7 +65,7 @@ fn main() {
 	////app::set_font(Font::Courier);
 	 
 	////println!("{:?}", fonts());
-	println!("{:?}", app::get_font_names());
+	////println!("{:?}", app::get_font_names());
 	app::set_font(enums::Font::by_name("Noto Sans")); // If this fails, it falls back to a default Sans font depending on the system
 
 	let mut window: DoubleWindow = Window::default()
