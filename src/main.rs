@@ -43,6 +43,7 @@ use job_helper::{
 	Widget,
 	JobView,
 	CreateView,
+	Status,
 };
 
 const WINDOW_WIDTH_MINIMUM: i32 = 600;
@@ -140,7 +141,7 @@ fn main() {
 		"none", 
 		0, 
 		0,
-		false
+		Status::Incomplete,
 	);
 
 	// Creates an array to store displayed jobs in, and fills the array with default jobs (default jobs must not be displayed)

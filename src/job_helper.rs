@@ -12,6 +12,8 @@ use fltk::{
 	},
 };
 
+use crate::WINDOW_WIDTH_MINIMUM;
+
 // ## Job components
 
 pub struct Job {
@@ -20,11 +22,11 @@ pub struct Job {
 	notes: String,
 	last_modified: u32, //TODO Change to timestamp
 	added: u32, //TODO Change to timestamp
-	status: bool, //TODO Enum
+	status: Status, //TODO Enum
 }
 
 impl Job {
-	pub fn new(device_name: &str, description: &str, notes: &str, last_modified: u32, added: u32, status: bool) -> Job {
+	pub fn new(device_name: &str, description: &str, notes: &str, last_modified: u32, added: u32, status: Status) -> Job {
 		Job {
 			device_name: device_name.to_string(),
 			description: description.to_string(),
@@ -44,7 +46,7 @@ impl Clone for Job {
 			notes: self.notes.clone(),
 			added: self.added,
 			last_modified: self.last_modified,
-			status: self.status,
+			status: self.status.clone(),
 		}
 	}
 }
@@ -61,7 +63,7 @@ impl Defaults for Job {
 			notes: "".to_string(),
 			added: 0,
 			last_modified: 0,
-			status: false,
+			status: Status::Incomplete,
 		}
 	}
 }
@@ -109,6 +111,36 @@ impl fmt::Display for Job { // Used for debug while testing
 	}
 }
 
+// ## Status enum
+pub enum Status { // Boolean would work, but could be confusing when used
+	Complete,
+	Incomplete,
+}
+
+impl fmt::Display for Status {
+	fn fmt (&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Status::Incomplete => write!(
+				f,
+				"Incomplete",
+			),
+			Status::Complete => write!(
+				f,
+				"Complete",
+			),
+		}
+	}
+}
+
+impl Clone for Status {
+	fn clone(&self) -> Self {
+		match self {
+			Status::Complete => Status::Complete,
+			Status::Incomplete => Status::Incomplete,
+		}
+	}
+}
+
 // ## Job view components
 
 const VIEW_MINIMUM_WIDTH: i32 = 480;
@@ -134,7 +166,7 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 			.with_label(&job.device_name);
 		job_view_window.make_resizable(true);
 
-		let edit_pack: group::Pack = group::Pack::new(0, 0, VIEW_MINIMUM_WIDTH, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS, "");
+		let edit_pack: group::Pack = group::Pack::new(0, 0, VIEW_MINIMUM_WIDTH, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS * 3, "");
 
 		//## Device name
 		let _ = JobView::spacer();
@@ -149,6 +181,18 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 		let notes_editor: text::TextEditor = JobView::text_box(&job.notes, "Notes:", 100);
 
 		edit_pack.end();
+
+		//## Status
+		let status_pack: group::Pack =group::Pack::new(WINDOW_WIDTH_MINIMUM / 2 - BUTTON_WIDTHS, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS*5, BUTTON_WIDTHS, BUTTON_HEIGHTS, "");
+
+		let mut status_button: button::Button = button::Button::new(0, 0, 0, BUTTON_HEIGHTS, "");
+
+		match job.status {
+			Status::Complete => status_button.set_label("Complete"),
+			Status::Incomplete => status_button.set_label("Incomplete"),
+		};
+
+		status_pack.end();
 
 		let mut discard_button: button::Button = button::Button::default()
 			.with_label("Discard")
@@ -183,13 +227,19 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 
 			move |_| {
 				////println!("Save and exit button");
+				let status: Status = match status_button.label().as_str() {
+					"Incomplete" => Status::Incomplete,
+					"Complete" => Status::Complete,
+					_ => unreachable!(),
+				};
+				
 				let modified_job: Job = Job::new(
 					&name_editor.get_buffer_text(),
 					&description_editor.get_buffer_text(),
 					&notes_editor.get_buffer_text(), 
 					job.last_modified, 
 					job.added, 
-					job.status,
+					status,
 				);
 
 				////println!("{}", modified_job);
