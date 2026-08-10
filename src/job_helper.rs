@@ -4,17 +4,9 @@ use std::{
 };
 
 use fltk::{
-	button,
-	enums,
-	frame,
-	group,
-	text,
-	prelude::{
-		DisplayExt,
-		GroupExt,
-		WidgetExt,
-	},
-	window::{
+	button, enums, frame, group, prelude::{
+		DisplayExt, GroupExt, WidgetBase, WidgetExt,
+	}, text, window::{
 		self,
 		Window
 	},
@@ -119,6 +111,14 @@ impl fmt::Display for Job { // Used for debug while testing
 
 // ## Job view components
 
+const VIEW_MINIMUM_WIDTH: i32 = 480;
+const VIEW_MINIMUM_HEIGHT: i32 = 680;
+
+const BUTTON_WIDTHS: i32 = 125;
+const BUTTON_HEIGHTS: i32 = 50;
+
+const SPACER_FRAME_HEIGHT: i32 = 25;
+
 pub struct JobView {
 	// No components to this struct, purely exists to provide a method
 }
@@ -130,26 +130,30 @@ pub trait CreateView {
 impl CreateView for JobView { // TODO MAKE RETURN VALUE
 	fn create_view(job: &Job, sender: Sender<Job>) -> Window {
 		let mut job_view_window: window::Window = window::Window::default()
-			.with_size(400, 400)
+			.with_size(VIEW_MINIMUM_WIDTH, VIEW_MINIMUM_HEIGHT)
 			.with_label(&job.device_name);
 		job_view_window.make_resizable(true);
 
-		let mut description_buffer: text::TextBuffer = text::TextBuffer::default();
+		let edit_pack: group::Pack = group::Pack::new(0, 0, VIEW_MINIMUM_WIDTH, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS, "");
 
-		description_buffer.set_text(&job.description);
+		//## Device name
+		let _ = JobView::spacer();
+		let name_editor: text::TextEditor = JobView::text_box(&job.device_name, "Model:", 50);
 
-		let mut description_editor = text::TextEditor::default()
-			.with_size(400, 350)
-			.with_pos(0, 0);
+		//## Description
+		let _ = JobView::spacer(); // Spacer
+		let description_editor: text::TextEditor = JobView::text_box(&job.description, "Description:", 200);
 
-		description_editor.set_buffer(description_buffer);
-		description_editor.set_cursor_style(text::Cursor::Block);
-		description_editor.wrap_mode(text::WrapMode::AtBounds, 0);
+		//## Notes
+		let _ = JobView::spacer();
+		let notes_editor: text::TextEditor = JobView::text_box(&job.notes, "Notes:", 100);
+
+		edit_pack.end();
 
 		let mut discard_button: button::Button = button::Button::default()
 			.with_label("Discard")
-			.with_pos(0, 350)
-			.with_size(100, 50);
+			.with_pos(0, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS)
+			.with_size(BUTTON_WIDTHS, BUTTON_HEIGHTS);
 
 		discard_button.set_label_color(enums::Color::Red);
 
@@ -167,8 +171,8 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 
 		let mut save_button: button::Button = button::Button::default()
 			.with_label("Save and exit")
-			.with_pos(300, 350)
-			.with_size(100, 50);
+			.with_pos(VIEW_MINIMUM_WIDTH - BUTTON_WIDTHS, VIEW_MINIMUM_HEIGHT - BUTTON_HEIGHTS)
+			.with_size(BUTTON_WIDTHS, BUTTON_HEIGHTS);
 
 		save_button.set_callback({
 			////println!("{}", modified_job);
@@ -179,14 +183,13 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 
 			move |_| {
 				////println!("Save and exit button");
-				// TODO Saving code
 				let modified_job: Job = Job::new(
-					&job.device_name, 
-					&description_editor.buffer().expect("Editor should have an associated buffer").text(),
-					&job.notes, 
+					&name_editor.get_buffer_text(),
+					&description_editor.get_buffer_text(),
+					&notes_editor.get_buffer_text(), 
 					job.last_modified, 
 					job.added, 
-					job.status
+					job.status,
 				);
 
 				////println!("{}", modified_job);
@@ -211,5 +214,54 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 		job_view_window.show();
 
 		job_view_window
+	}
+}
+
+trait Spacer {
+	fn spacer() -> frame::Frame;
+}
+
+impl Spacer for JobView {
+	fn spacer() -> frame::Frame {
+		frame::Frame::new(25, 0, 0, SPACER_FRAME_HEIGHT, "")
+	}
+}
+
+trait TextBox {
+	fn text_box(contents: &str, label: &str, height: i32) -> text::TextEditor;
+}
+
+impl TextBox for JobView {
+	fn text_box(contents: &str, label: &str, height: i32) -> text::TextEditor {
+		let mut buffer: text::TextBuffer = text::TextBuffer::default();
+
+		buffer.set_text(contents);
+
+		let mut editor: text::TextEditor = text::TextEditor::default()
+			.with_size(0, height)
+			.with_label(&("  ".to_owned() + label))
+			.with_align(enums::Align::TopLeft);
+
+		editor.set_buffer(buffer);
+		editor.set_label_font(enums::Font::by_name("Noto Sans Italic"));
+		editor.set_label_size(12);
+		editor.set_cursor_style(text::Cursor::Block);
+		editor.wrap_mode(text::WrapMode::AtBounds, 0);
+
+		if height < 100 {
+			editor.set_scrollbar_size(-1); // Prevent display of scrollbar for single line fields
+		}
+
+		editor
+	}
+}
+
+trait GetBufferText {
+	fn get_buffer_text(self: &Self) -> String;
+}
+
+impl GetBufferText for text::TextEditor { // Convinience trait
+	fn get_buffer_text(self: &text::TextEditor) -> String {
+		self.buffer().expect("Editor should have an associated buffer").text()
 	}
 }

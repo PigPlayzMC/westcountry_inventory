@@ -3,8 +3,18 @@
 // Extern. imports
 use fltk::{
 	app::{
-		self, App, fonts,
-	}, enums::{self, *}, group::Grid, image::PngImage, menu, prelude::*, window::{
+		self,
+		App,
+	},
+	enums::{
+		self,
+		*,
+	},
+	group::Grid,
+	image::PngImage,
+	menu,
+	prelude::*,
+	window::{
 		DoubleWindow,
 		Window,
 	},
