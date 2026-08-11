@@ -188,9 +188,34 @@ impl CreateView for JobView { // TODO MAKE RETURN VALUE
 		let mut status_button: button::Button = button::Button::new(0, 0, 0, BUTTON_HEIGHTS, "");
 
 		match job.status {
-			Status::Complete => status_button.set_label("Complete"),
-			Status::Incomplete => status_button.set_label("Incomplete"),
+			Status::Complete => {
+				status_button.set_label("Complete");
+				status_button.set_color(enums::Color::XtermGreen);
+			},
+			Status::Incomplete => {
+				status_button.set_label("Incomplete");
+				status_button.set_color(enums::Color::XtermYellow);
+			},
 		};
+
+		status_button.set_callback(move |status_button: &mut button::Button| {
+			let status: Status = match status_button.label().as_str() {
+				"Incomplete" => Status::Incomplete,
+				"Complete" => Status::Complete,
+				_ => unreachable!(),
+			};
+
+			match status {
+				Status::Complete => {
+					status_button.set_label("Incomplete");
+					status_button.set_color(enums::Color::XtermYellow);
+				},
+				Status::Incomplete => {
+					status_button.set_label("Complete");
+					status_button.set_color(enums::Color::XtermGreen);
+				},
+			};
+		});
 
 		status_pack.end();
 
