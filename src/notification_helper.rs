@@ -1,5 +1,8 @@
 use fltk::{
-    app::App, button, prelude::*, text, window,
+    button,
+	prelude::*, 
+	text,
+	window,
 };
 
 use crate::button_consts::{self, OK_BUTTON};
@@ -22,11 +25,11 @@ impl NotificationPopup {
 		notification_window.set_border(true);
 		notification_window.make_modal(true);
 
-		let mut body_text = text::TextDisplay::default()
+		let mut body_text: text::TextDisplay = text::TextDisplay::default()
 			.with_size(WIDTH - SPACING*2, HEIGHT - 70)
 			.with_pos(SPACING, SPACING);
 
-		let mut body_buffer = text::TextBuffer::default();
+		let mut body_buffer: text::TextBuffer = text::TextBuffer::default();
 		body_buffer.set_text(&body);
 		
 		body_text.set_buffer(body_buffer);
@@ -40,7 +43,7 @@ impl NotificationPopup {
 					.with_pos(WIDTH - BUTTON_WIDTH - SPACING, HEIGHT - BUTTON_HEIGHT - SPACING);
 
 				ok_button.set_callback({
-					let mut notification_window = notification_window.clone();
+					let mut notification_window: window::DoubleWindow = notification_window.clone();
 					
 					move |_| {
 						notification_window.hide();
@@ -69,7 +72,6 @@ impl NotificationPopup {
     }
 }
 
-#[allow(dead_code)]
 pub struct ErrorPopup {
 	pub error_window: window::Window,
 }
