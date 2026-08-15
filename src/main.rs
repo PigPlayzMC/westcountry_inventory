@@ -6,11 +6,7 @@ use fltk::{
 		self,
 		App,
 	},
-	enums::{**Frontend ready for backend connection**
-- Job editing view
-- Job saving
-- Job grid for display
-- All elements of job grid implemented to required pre-stable 
+	enums::{
 		self,
 		*,
 	},
